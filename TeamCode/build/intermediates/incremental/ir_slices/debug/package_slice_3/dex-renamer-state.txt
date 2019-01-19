@@ -1,0 +1,4 @@
+#Sun Jan 13 19:29:58 EST 2019
+base.0=/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/TeamCode/build/intermediates/transforms/dexMerger/debug/4
+path.0=classes.dex
+renamed.0=classes.dex

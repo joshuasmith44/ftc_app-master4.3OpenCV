@@ -62,6 +62,8 @@ public class FullDrive extends OpMode
     private int extensionEncoderMin;
     ElapsedTime armTiltTime = new ElapsedTime();
     ElapsedTime extensionTiltTime = new ElapsedTime();
+    boolean autoSweeper = false;
+    boolean autoSweeper1 = false;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -141,26 +143,46 @@ public class FullDrive extends OpMode
         }else{
             myRobot.mDeploy.setPosition(0.5);
         }
-        if(gamepad2.y){
-            myRobot.mDeposit.setPosition(0);
-        }else{
+
+        if (gamepad2.y){
             myRobot.mDeposit.setPosition(1);
+            autoSweeper = true;
+        } else {
+
+            myRobot.mDeposit.setPosition(0);
+            autoSweeper = false;
         }
+
+
+
         if(Math.abs(gamepad2.right_trigger) > 0.4){
             myRobot.mSweeperMotor.setPower(-1.0);
         }else if(Math.abs(gamepad2.left_trigger)>0.4){
             myRobot.mSweeperMotor.setPower(1.0);
-        }else{
+        } else if (autoSweeper){
+            myRobot.mSweeperMotor.setPower(-0.7);
+        }else if (autoSweeper1){
+            myRobot.mSweeperMotor.setPower(-1.0);
+        }
+        else{
             myRobot.mSweeperMotor.setPower(0);
         }
 
         if(gamepad2.dpad_up){
+            autoSweeper1 = true;
             myRobot.mTiltMotor.setTargetPosition(tiltEncoderMin + myRobot.tiltDelta);
             myRobot.mExtensionMotor.setTargetPosition(extensionEncoderMin);
         }else if(gamepad2.dpad_down){
             myRobot.mTiltMotor.setTargetPosition(extensionEncoderMin + myRobot.groundLiftVal);
             myRobot.mExtensionMotor.setTargetPosition(extensionEncoderMin);
+            autoSweeper1 = false;
         }
+
+        if(Math.abs(myRobot.mTiltMotor.getCurrentPosition() - (tiltEncoderMin+ myRobot.tiltDelta))< 30) {
+            autoSweeper1 = false;
+        }
+
+
 
         if(Math.abs(gamepad2.right_stick_y) > 0.2){
             if(extensionTiltTime.milliseconds()>10){
@@ -242,6 +264,8 @@ public class FullDrive extends OpMode
         myRobot.mFrontRightMotor.setPower(FRPower);
         myRobot.mBackRightMotor.setPower(BRPower);
         myRobot.mBackLeftMotor.setPower(BLPower);
+
+
 
     }
 

@@ -99,7 +99,7 @@ public class Robot {
         mFrontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         mDeposit = mHardwareMap.get(Servo.class, "DaDump");
-        mDeposit.setPosition(1);
+        mDeposit.setPosition(0);
         mSideBack = mHardwareMap.get(Servo.class, "SideBack");
         mSideBack.setPosition(0);
         mSideFront = mHardwareMap.get(Servo.class, "SideFront");
