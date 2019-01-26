@@ -1,20 +1,24 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="WiffleDelayAuto")
-@Disabled
-public class WiffleDelayAuto extends OpMode{
+import org.corningrobotics.enderbots.endercv.CameraViewDisplay;
+
+@Autonomous(name="BlockAuto70")
+public class BlockAuto70 extends OpMode{
     private final int DOWN_POSITION = -19170;
     Robot myRobot;
     ElapsedTime runtime;
     ElapsedTime blocktime;
     Autobot myAutoBot;
     ACTION currentAction = ACTION.RESET_ACTION;
+    private boolean hasSeenBlock = false;
+    private boolean hasHitBlock = false;
+    private BlockDetector detector;
+    int timeResetDelta = 0;
 
     private enum ACTION{
         RESET_ACTION,
@@ -24,21 +28,34 @@ public class WiffleDelayAuto extends OpMode{
         RIGHT_HOOK_ACTION,
         DELAY_1,
         CV_BACKUP,
-        FORWARD1_ACTION,
         DELAY_2,
-        TURN_LEFT_ACTION,
+        FORWARD1_ACTION,
         DELAY_3,
-        FORWARD2_ACTION,
-        DROP_ACTION,
-        BACK2_ACTION,
+        TURN_LEFT_ACTION,
         DELAY_4,
+        STRAF_TO_WALL,
+        DELAY_5,
+        BACKUP_TO_DEPOT,
+        DELAY_6,
+        STRAF_FROM_WALL,
+        DELAY_7,
+        ROTATE_FOR_DROP,
+        DELAY_8,
+        DROP_ACTION,
         STOP_ACTION,
     }
 
     @Override
     public void init() {
+        currentAction = ACTION.RESET_ACTION;
+        hasSeenBlock = false;
+        hasHitBlock = false;
+        timeResetDelta = 0;
         myRobot = new Robot(hardwareMap);
-
+        detector = new BlockDetector();
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
+        // start the vision system
+        detector.enable();
         myRobot.init();
         telemetry.addData("initialized", null);
         runtime = new ElapsedTime();
@@ -101,7 +118,7 @@ public class WiffleDelayAuto extends OpMode{
                 break;
             case RIGHT_HOOK_ACTION:
                 myAutoBot.drive(.6, 0, 0);
-                if(runtime.milliseconds() > 800){
+                if(runtime.milliseconds() > 825){
                     myAutoBot.drive(0,0,0);
                     runtime.reset();
                     blocktime.reset();
@@ -118,37 +135,11 @@ public class WiffleDelayAuto extends OpMode{
                 break;
 
             case CV_BACKUP:
-                myAutoBot.drive(0, -0.3, 0);
-                if(runtime.milliseconds() > 1000){
+                myAutoBot.drive(0, -0.3, 0.025);
+                if(runtime.milliseconds() > 1500){
                     myAutoBot.drive(0,0,0);
                     runtime.reset();
                     blocktime.reset();
-                    currentAction = ACTION.DELAY_4;
-                }
-                break;
-
-            case DELAY_4:
-                myAutoBot.drive(0,0,0);
-                if(runtime.milliseconds() > 400){
-                    runtime.reset();
-                    currentAction = ACTION.FORWARD1_ACTION;
-                }
-                break;
-
-
-            case FORWARD1_ACTION:
-                myAutoBot.drive(0, .4, 0);
-                if(blocktime.milliseconds() > 950){
-                    myRobot.mBlockHitter.setPosition(0);
-                }
-                if(blocktime.milliseconds() > 2450){
-                    myRobot.mBlockHitter.setPosition(1);
-                }
-                if(runtime.milliseconds() > 2850){
-                    myAutoBot.drive(0,0,0);
-                    runtime.reset();
-                    myRobot.mSideBack.setPosition(1);
-                    myRobot.mSideFront.setPosition(0);
                     currentAction = ACTION.DELAY_2;
                 }
                 break;
@@ -157,65 +148,136 @@ public class WiffleDelayAuto extends OpMode{
                 myAutoBot.drive(0,0,0);
                 if(runtime.milliseconds() > 400){
                     runtime.reset();
-                    currentAction = ACTION.TURN_LEFT_ACTION;
+                    currentAction = ACTION.FORWARD1_ACTION;
                 }
                 break;
+            case FORWARD1_ACTION:
+                if(!hasSeenBlock && detector.maxValIdx > -1 && detector.y < 200){
+                    hasSeenBlock = true;
+                    blocktime.reset();
+                    myRobot.mBlockHitter.setPosition(0);
+                    myAutoBot.drive(0,0,0);
+                }
 
-            case TURN_LEFT_ACTION:
-                myAutoBot.drive(0, 0, -0.3);
-                if(runtime.milliseconds() > 585){
+
+                if(!hasSeenBlock){
+                    myAutoBot.drive(0, .3, 0);
+                }else if(!hasHitBlock){
+                    if(blocktime.milliseconds() > 1200){
+                        myRobot.mBlockHitter.setPosition(1);
+                        hasHitBlock = true;
+                    }else if(blocktime.milliseconds() > 600){
+                        myAutoBot.drive(0,.3, 0);
+                        timeResetDelta = 600;
+                    }
+
+                }else{
+                    myAutoBot.drive(0,.3, 0);
+                }
+
+                if(runtime.milliseconds() - timeResetDelta > 4100){
                     myAutoBot.drive(0,0,0);
                     runtime.reset();
+                    myRobot.mSideBack.setPosition(1);
+                    myRobot.mSideFront.setPosition(0);
                     currentAction = ACTION.DELAY_3;
-
                 }
+
                 break;
+
 
             case DELAY_3:
                 myAutoBot.drive(0,0,0);
                 if(runtime.milliseconds() > 400){
                     runtime.reset();
-                    currentAction = ACTION.FORWARD2_ACTION;
+                    currentAction = ACTION.TURN_LEFT_ACTION;
                 }
                 break;
 
-            case FORWARD2_ACTION:
-                myAutoBot.drive(.2, .45, 0);
-                if(runtime.milliseconds() > 2200){
+            case TURN_LEFT_ACTION:
+                myAutoBot.drive(0, 0, -0.3 );
+                if(runtime.milliseconds() > 1000){
                     myAutoBot.drive(0,0,0);
+                    runtime.reset();
+                    currentAction = ACTION.DELAY_4;
+                }
+                break;
+
+            case DELAY_4:
+                if(runtime.milliseconds() > 400){
+                    runtime.reset();
+                    myAutoBot.drive(0.3, 0, 0 );
+                    currentAction = ACTION.STRAF_TO_WALL;
+                }
+                break;
+
+            case STRAF_TO_WALL:
+                if(runtime.milliseconds() > 800){
+                    myAutoBot.drive(0,0,0);
+                    currentAction = ACTION.DELAY_5;
+                    runtime.reset();
+                }
+                break;
+
+            case DELAY_5:
+                if(runtime.milliseconds() > 400){
+                    runtime.reset();
+                    myAutoBot.drive(0, -0.5, 0 );
+                    currentAction = ACTION.BACKUP_TO_DEPOT;
+                }
+                break;
+            case BACKUP_TO_DEPOT:
+                if(runtime.milliseconds() > 1900){
+                    myAutoBot.drive(0,0,0);
+                    currentAction = ACTION.DELAY_6;
+                    runtime.reset();
+                }
+                break;
+            case DELAY_6:
+                if(runtime.milliseconds() > 400){
+                    runtime.reset();
+                    myAutoBot.drive(-0.3, 0, 0 );
+                    currentAction = ACTION.STRAF_FROM_WALL;
+                }
+                break;
+            case STRAF_FROM_WALL:
+                if(runtime.milliseconds() > 700){
+                    myAutoBot.drive(0,0,0);
+                    currentAction = ACTION.DELAY_7;
+                    runtime.reset();
+                }
+                break;
+            case DELAY_7:
+                if(runtime.milliseconds() > 400){
+                    runtime.reset();
+                    myAutoBot.drive(0, 0, -0.3 );
+                    currentAction = ACTION.ROTATE_FOR_DROP;
+                }
+                break;
+            case ROTATE_FOR_DROP:
+                if(runtime.milliseconds() > 3000){
+                    myAutoBot.drive(0,0,0);
+                    runtime.reset();
+                    currentAction = ACTION.DELAY_8;
+                }
+                break;
+            case DELAY_8:
+                if(runtime.milliseconds() > 400){
                     runtime.reset();
                     currentAction = ACTION.DROP_ACTION;
-                }
-                break;
-            case DROP_ACTION:
-                if(runtime.milliseconds() > 100){
                     myRobot.mRelease.setPosition(0);
                 }
-                if(runtime.milliseconds() > 600){
-                    runtime.reset();
-                    currentAction = ACTION.BACK2_ACTION;
-                    myAutoBot.drive(0,0,0);
-                }
                 break;
-            case BACK2_ACTION:
-                myAutoBot.drive(.12,-0.45,0);
-                if(runtime.milliseconds() > 4000){
+
+            case DROP_ACTION:
+                if(runtime.milliseconds() > 100){
                     runtime.reset();
                     myAutoBot.drive(0,0,0);
                     currentAction = ACTION.STOP_ACTION;
-                    myRobot.mHangingMotor.setPower(0);
-                    myRobot.mHangingMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    myRobot.mSideBack.setPosition(0);
-                    myRobot.mSideFront.setPosition(1);
                 }
                 break;
-
-
-
             case STOP_ACTION:
                 break;
-
-
         }
     }
 

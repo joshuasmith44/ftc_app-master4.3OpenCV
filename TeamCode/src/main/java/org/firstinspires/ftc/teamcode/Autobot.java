@@ -142,9 +142,9 @@ public class Autobot {
         angleOffset = currentHeading;
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        //do(){
+        while(timer.milliseconds() < timeout){
 
-        //}while
+        }
     }
 
     public void turnDegrees(double degrees){
