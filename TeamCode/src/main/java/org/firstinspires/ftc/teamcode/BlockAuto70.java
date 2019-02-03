@@ -53,9 +53,7 @@ public class BlockAuto70 extends OpMode{
         timeResetDelta = 0;
         myRobot = new Robot(hardwareMap);
         detector = new BlockDetector();
-        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
         // start the vision system
-        detector.enable();
         myRobot.init();
         telemetry.addData("initialized", null);
         runtime = new ElapsedTime();
@@ -78,7 +76,8 @@ public class BlockAuto70 extends OpMode{
      */
     @Override
     public void start() {
-
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
+        detector.enable();
     }
 
     /*
@@ -88,11 +87,12 @@ public class BlockAuto70 extends OpMode{
     public void loop() {
         switch(currentAction){
             case RESET_ACTION:
-                if(myRobot.mHangingMotor.getCurrentPosition() == 0)
+                if(myRobot.mHangingMotor.getCurrentPosition() == 0) {
                     myRobot.mHangingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     myRobot.mHangingMotor.setTargetPosition(DOWN_POSITION);
                     myRobot.mHangingMotor.setPower(1.0);
                     currentAction = ACTION.DOWN_ACTION;
+                }
                 break;
             case DOWN_ACTION:
                 if(Math.abs(myRobot.mHangingMotor.getCurrentPosition() - myRobot.mHangingMotor.getTargetPosition()) < 15){

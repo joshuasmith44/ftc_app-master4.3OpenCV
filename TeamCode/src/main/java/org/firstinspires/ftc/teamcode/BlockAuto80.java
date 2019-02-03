@@ -94,11 +94,13 @@ public class BlockAuto80 extends OpMode{
     public void loop() {
         switch(currentAction){
             case RESET_ACTION:
-                if(myRobot.mHangingMotor.getCurrentPosition() == 0)
+                if (myRobot.mHangingMotor.getCurrentPosition() == 0) {
                     myRobot.mHangingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     myRobot.mHangingMotor.setTargetPosition(DOWN_POSITION);
                     myRobot.mHangingMotor.setPower(1.0);
                     currentAction = ACTION.DOWN_ACTION;
+                }
+
                 break;
             case DOWN_ACTION:
                 if(Math.abs(myRobot.mHangingMotor.getCurrentPosition() - myRobot.mHangingMotor.getTargetPosition()) < 15){

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/TeamCode/build/intermediates/incremental/mergeDebugResources/merged.dir/values-w820dp-v13/values-w820dp-v13.xml",
+            "outputFile": "/Users/michaelsmith/WeByteMaster/TeamCode/build/intermediates/incremental/mergeDebugResources/merged.dir/values-w820dp-v13/values-w820dp-v13.xml",
             "map": [
                 {
-                    "source": "/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/FtcRobotController/build/intermediates/packaged_res/debug/values-w820dp-v13/values-w820dp-v13.xml",
+                    "source": "/Users/michaelsmith/WeByteMaster/FtcRobotController/build/intermediates/packaged_res/debug/values-w820dp-v13/values-w820dp-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

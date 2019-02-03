@@ -1,13 +1,4 @@
-#Sun Jan 13 19:29:59 EST 2019
-path.3=classes.dex
-path.2=classes.dex
-path.1=classes.dex
+#Sat Jan 26 14:50:59 EST 2019
+base.0=/Users/michaelsmith/WeByteMaster/TeamCode/build/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
-renamed.3=classes4.dex
-renamed.2=classes3.dex
-renamed.1=classes2.dex
 renamed.0=classes.dex
-base.3=/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/TeamCode/build/intermediates/transforms/dexMerger/debug/14
-base.2=/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/TeamCode/build/intermediates/transforms/dexMerger/debug/13
-base.1=/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/TeamCode/build/intermediates/transforms/dexMerger/debug/12
-base.0=/Users/somilagarwal/Desktop/ftc_app-master4.3OpenCV/TeamCode/build/intermediates/transforms/dexMerger/debug/15
